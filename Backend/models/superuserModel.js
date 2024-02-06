@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
 
-const OrganizationSchema = new mongoose.Schema({
+const SuperuserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     unique: true,
   },
-  superusers: [
+  admins: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
-  admins: [
+  editors: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -26,6 +26,6 @@ const OrganizationSchema = new mongoose.Schema({
   ],
 });
 
-const Organization = mongoose.model("Organization", OrganizationSchema);
+const Superuser = mongoose.model("Superuser", SuperuserSchema);
 
-module.exports = Organization;
+module.exports = Superuser;
