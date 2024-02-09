@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const RoleSchema = new mongoose.Schema({
-  name: {
+  role: {
     type: String,
     required: true,
     unique: true,
@@ -12,9 +12,9 @@ const RoleSchema = new mongoose.Schema({
     required: true,
     default: [],
   },
-  organization: {
+  superuser: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Organization",
+    ref: "Superuser",
   },
 });
 
