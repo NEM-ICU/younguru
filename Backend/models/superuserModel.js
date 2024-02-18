@@ -4,7 +4,22 @@ const SuperuserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+  },
+  email: {
+    type: String,
+    required: true,
     unique: true,
+  },
+  rootKey: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+    select: false,
   },
   admins: [
     {
@@ -28,4 +43,4 @@ const SuperuserSchema = new mongoose.Schema({
 
 const Superuser = mongoose.model("Superuser", SuperuserSchema);
 
-module.exports = Superuser;
+export default Superuser;
