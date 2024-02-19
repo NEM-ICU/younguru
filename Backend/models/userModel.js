@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  username: {
+  name: {
     type: String,
     required: true,
   },
@@ -12,13 +12,13 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
   role: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Role",
+    type: String,
+    enum: ["user", "admin", "editor"],
+    default: "user",
+  },
+  rootKey: {
+    type: Number,
     required: true,
   },
   password: {
