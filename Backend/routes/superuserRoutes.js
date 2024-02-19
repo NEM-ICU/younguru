@@ -1,17 +1,18 @@
 import * as superUser from "../controllers/superuserController.js";
-import { createSuperUser } from "../controllers/authController.js";
+import { createSuperUser, createAdmin, rootLogin } from "../controllers/authController.js";
 
 import { Router } from "express";
 
 const router = Router();
 
-// create new superuser
+// create new Superuser
 router.post("/create_new_superuser", createSuperUser);
 
-// get all books
-// router.get("/list", book.getAllBooks);
+// create new Admin
+router.post("/create_new_admin", createAdmin);
 
-// // login user route
-// router.post("/login", user.loginUser);
+// root login
+router.post("/login", rootLogin);
+
 
 export default router;
