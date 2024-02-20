@@ -8,11 +8,11 @@ import {
   validateSuperuserSignup,
   validateAdminSignupSchema,
   validateLoginSchema,
+  validateUserLoginSchema,
 } from "../validators/validator.js";
 
 // Create Token
 const signToken = (id) => {
-  console.log(process.env.JWT_SECRET);
 
   return Jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -96,13 +96,17 @@ const createAdmin = catchAsync(async (req, res, next) => {
 const rootLogin = catchAsync(async (req, res, next) => {
   const { error, value } = validateLoginSchema(req.body);
 
-  // check if user exists & password is correct
+  if (error) {
+    return next(new AppError(error.message, 400));
+  }
+
+  // check if user exists
   const superuser = await Superuser.findOne({ email: value.email }).select(
     "+password"
   );
 
   // Check whether the provided password matches the stored password.
-  if (!superuser || (!await compare(value.password, superuser.password))) {
+  if (!superuser || !(await compare(value.password, superuser.password))) {
     return next(new AppError("invalid password or user", 400));
   }
 
@@ -110,4 +114,28 @@ const rootLogin = catchAsync(async (req, res, next) => {
   createSendToken(superuser, 200, res);
 });
 
-export { createSuperUser, createAdmin, rootLogin };
+// User Login
+const userLogin = catchAsync(async (req, res, next) => {
+  const { error, value } = validateUserLoginSchema(req.body);
+
+  if (error) {
+    return next(new AppError(error.message, 400));
+  }
+
+  // check if user exists
+  const user = await User.findOne({ email: value.email }).select("+password");
+
+  // Check whether the provided password matches the stored password and if the rootKey matches.
+  if (
+    !user ||
+    value.rootKey != user.rootKey ||
+    !(await compare(value.password, user.password))
+  ) {
+    return next(new AppError("invalid password or user", 400));
+  }
+
+  //if everything ok, sent token to the client
+  createSendToken(user, 200, res);
+});
+
+export { createSuperUser, createAdmin, rootLogin, userLogin };

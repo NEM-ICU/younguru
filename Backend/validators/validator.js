@@ -21,12 +21,20 @@ const loginSchema = Joi.object({
   password: Joi.string().required().min(8).max(16),
 });
 
+const userLoginSchema = Joi.object({
+  rootKey: Joi.string().required().length(8),
+  email: Joi.string().required().email(),
+  password: Joi.string().required().min(8).max(16),
+});
+
 const validateSuperuserSignup = validator(superuserSignupSchema);
 const validateAdminSignupSchema = validator(adminSignupSchema);
 const validateLoginSchema = validator(loginSchema);
+const validateUserLoginSchema = validator(userLoginSchema);
 
 export {
   validateSuperuserSignup,
   validateAdminSignupSchema,
   validateLoginSchema,
+  validateUserLoginSchema,
 };
