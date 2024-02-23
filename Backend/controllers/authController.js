@@ -13,7 +13,6 @@ import {
 
 // Create Token
 const signToken = (id) => {
-
   return Jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -82,6 +81,7 @@ const createAdmin = catchAsync(async (req, res, next) => {
 
   const newAdmin = await User.create({
     ...value,
+    rootKey: req.rootKey,
     password: hashedPassword,
     role: "admin",
   });
