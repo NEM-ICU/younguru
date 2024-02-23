@@ -1,4 +1,3 @@
-import User from "../models/userModel.js";
 import AppError from "../utils/appError.js";
 import Jwt from "jsonwebtoken";
 import catchAsync from "../utils/catchAsync.js";
@@ -20,9 +19,8 @@ const rootProtect = catchAsync(async (req, res, next) => {
 
   //Verification token
   var decoded = Jwt.verify(token, process.env.JWT_SECRET);
-  console.log(decoded);
 
-  //check if user still exist
+  // Check if user still exists.
   const root = await Superuser.findById(decoded.id);
   if (!root) {
     return next(
@@ -32,6 +30,7 @@ const rootProtect = catchAsync(async (req, res, next) => {
 
   //Grant access protected ROUTE
   req.user = decoded.id;
+  req.rootKey = root.rootKey;
   next();
 });
 
