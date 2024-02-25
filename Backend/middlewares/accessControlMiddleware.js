@@ -29,9 +29,26 @@ const rootProtect = catchAsync(async (req, res, next) => {
   }
 
   //Grant access protected ROUTE
-  req.user = decoded.id;
-  req.rootKey = root.rootKey;
+  req.user = {
+    id: decoded.id,
+    rootKey: root.rootKey,
+    role: "root",
+  };
+
   next();
 });
 
-export { rootProtect };
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    console.log(roles);
+    console.log(req.user);
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 401)
+      );
+    }
+    next();
+  };
+};
+
+export { rootProtect, restrictTo };

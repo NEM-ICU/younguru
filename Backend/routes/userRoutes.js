@@ -4,7 +4,7 @@ import { Router } from "express";
 
 const router = Router();
 
-// root login
+// user login
 router.post("/login", userLogin);
 
 export default router;

@@ -4,7 +4,10 @@ import {
   createAdmin,
   rootLogin,
 } from "../controllers/authController.js";
-import { rootProtect } from "../middlewares/accessControlMiddleware.js";
+import {
+  restrictTo,
+  rootProtect,
+} from "../middlewares/accessControlMiddleware.js";
 
 import { Router } from "express";
 
@@ -18,5 +21,8 @@ router.post("/create_new_admin", rootProtect, createAdmin);
 
 // root login
 router.post("/login", rootLogin);
+
+// api test
+router.get("/test", rootProtect, restrictTo("root", "user"), superUser.test);
 
 export default router;
