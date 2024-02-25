@@ -9,7 +9,9 @@ import {
   validateAdminSignupSchema,
   validateLoginSchema,
   validateUserLoginSchema,
+  validateAdminLoginSchema,
 } from "../validators/validator.js";
+import Admin from "../models/adminModel.js";
 
 // Create Token
 const signToken = (id) => {
@@ -79,9 +81,9 @@ const createAdmin = catchAsync(async (req, res, next) => {
 
   const hashedPassword = await hash(value.password, 10);
 
-  const newAdmin = await User.create({
+  const newAdmin = await Admin.create({
     ...value,
-    rootKey: req.rootKey,
+    rootKey: req.user.rootKey,
     password: hashedPassword,
     role: "admin",
   });
@@ -114,6 +116,30 @@ const rootLogin = catchAsync(async (req, res, next) => {
   createSendToken(superuser, 200, res);
 });
 
+// Admin Login
+const adminLogin = catchAsync(async (req, res, next) => {
+  const { error, value } = validateAdminLoginSchema(req.body);
+
+  if (error) {
+    return next(new AppError(error.message, 400));
+  }
+
+  // check if admin exists
+  const admin = await Admin.findOne({ email: value.email }).select("+password");
+
+  // Check whether the provided password matches the stored password and if the rootKey matches.
+  if (
+    !admin ||
+    value.rootKey != admin.rootKey ||
+    !(await compare(value.password, admin.password))
+  ) {
+    return next(new AppError("invalid password or user", 400));
+  }
+
+  //if everything ok, sent token to the client
+  createSendToken(Admin, 200, res);
+});
+
 // User Login
 const userLogin = catchAsync(async (req, res, next) => {
   const { error, value } = validateUserLoginSchema(req.body);
@@ -125,17 +151,32 @@ const userLogin = catchAsync(async (req, res, next) => {
   // check if user exists
   const user = await User.findOne({ email: value.email }).select("+password");
 
-  // Check whether the provided password matches the stored password and if the rootKey matches.
-  if (
-    !user ||
-    value.rootKey != user.rootKey ||
-    !(await compare(value.password, user.password))
-  ) {
+  if (!user) {
     return next(new AppError("invalid password or user", 400));
   }
 
-  //if everything ok, sent token to the client
-  createSendToken(user, 200, res);
+  if (user.role == "editor") {
+    // Check whether the provided password matches the stored password and if the rootKey matches.
+    if (
+      value.rootKey != user.rootKey ||
+      !(await compare(value.password, user.password))
+    ) {
+      return next(new AppError("invalid password or user", 400));
+    }
+    //if everything ok, sent token to the client
+    createSendToken(user, 200, res);
+  } else if (user.role == "user") {
+    if (
+      value.classCode != user.classCode ||
+      !(await compare(value.password, user.password))
+    ) {
+      return next(new AppError("invalid password or user", 400));
+    }
+    //if everything ok, sent token to the client
+    createSendToken(user, 200, res);
+  } else {
+    return next(new AppError("invalid password or user", 400));
+  }
 });
 
-export { createSuperUser, createAdmin, rootLogin, userLogin };
+export { createSuperUser, createAdmin, rootLogin, userLogin, adminLogin };
