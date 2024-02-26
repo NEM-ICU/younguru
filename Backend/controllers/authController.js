@@ -1,17 +1,17 @@
 import Jwt from "jsonwebtoken";
 import { hash, compare } from "bcrypt";
-import Superuser from "./../models/superuserModel.js";
 import User from "../models/userModel.js";
+import ClassModel from "../models/classModel.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 import {
-  validateSuperuserSignup,
-  validateAdminSignupSchema,
+  validateRootSignup,
+  validateAdminOrEditorSignupSchema,
+  validateStudentSignUpSchema,
   validateLoginSchema,
   validateUserLoginSchema,
   validateAdminLoginSchema,
 } from "../validators/validator.js";
-import Admin from "../models/adminModel.js";
 
 // Create Token
 const signToken = (id) => {
@@ -44,8 +44,8 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 // ROOT Signup
-const createSuperUser = catchAsync(async (req, res, next) => {
-  const { error, value } = validateSuperuserSignup(req.body);
+const createRoot = catchAsync(async (req, res, next) => {
+  const { error, value } = validateRootSignup(req.body);
 
   if (error) {
     return next(new AppError(error.message, 400));
@@ -59,21 +59,22 @@ const createSuperUser = catchAsync(async (req, res, next) => {
   const rootKey = getRandomPositive8Digit();
   const hashedPassword = await hash(value.password, 10);
 
-  const newSuperuser = await Superuser.create({
+  const newSuperuser = await User.create({
     ...value,
     password: hashedPassword,
     rootKey,
+    role: "root",
   });
 
   res.status(200).json({
     status: "success",
-    data: "Account created successfully!",
+    data: "Account Created Successfully!",
   });
 });
 
-// ADMIN Signup
-const createAdmin = catchAsync(async (req, res, next) => {
-  const { error, value } = validateAdminSignupSchema(req.body);
+// ADMIN || EDITOR Signup
+const createAdminOrEditor = catchAsync(async (req, res, next) => {
+  const { error, value } = validateAdminOrEditorSignupSchema(req.body);
 
   if (error) {
     return next(new AppError(error.message, 400));
@@ -81,16 +82,55 @@ const createAdmin = catchAsync(async (req, res, next) => {
 
   const hashedPassword = await hash(value.password, 10);
 
-  const newAdmin = await Admin.create({
-    ...value,
-    rootKey: req.user.rootKey,
-    password: hashedPassword,
-    role: "admin",
-  });
+  if (value.role === "admin") {
+    const user = await User.create({
+      ...value,
+      rootKey: req.user.rootKey,
+      password: hashedPassword,
+      role: "admin",
+    });
+  } else if (value.role === "editor") {
+    const user = await User.create({
+      ...value,
+      rootKey: req.user.rootKey,
+      password: hashedPassword,
+      role: "editor",
+    });
+  } else {
+    return next(new AppError("invalid role", 400));
+  }
 
   res.status(200).json({
     status: "success",
     data: "Account created successfully!",
+  });
+});
+
+// Studnet Signup
+const createStudent = catchAsync(async (req, res, next) => {
+  const { error, value } = validateStudentSignUpSchema(req.body);
+
+  if (error) {
+    return next(new AppError(error.message, 400));
+  }
+
+  // Check if classCode belong to the user.
+  const classDetails = await ClassModel.find({ rootKey: req.user.rootKey });
+
+  if (classDetails[0].classCode != value.classCode) {
+    return next(new AppError("Unauthorized Action", 401));
+  }
+
+  const hashedPassword = await hash(value.password, 10);
+
+  const newStudent = await User.create({
+    ...value,
+    password: hashedPassword,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: "Account Created Successfully!",
   });
 });
 
@@ -103,7 +143,7 @@ const rootLogin = catchAsync(async (req, res, next) => {
   }
 
   // check if user exists
-  const superuser = await Superuser.findOne({ email: value.email }).select(
+  const superuser = await User.findOne({ email: value.email }).select(
     "+password"
   );
 
@@ -179,4 +219,11 @@ const userLogin = catchAsync(async (req, res, next) => {
   }
 });
 
-export { createSuperUser, createAdmin, rootLogin, userLogin, adminLogin };
+export {
+  createRoot,
+  createAdminOrEditor,
+  createStudent,
+  rootLogin,
+  userLogin,
+  adminLogin,
+};

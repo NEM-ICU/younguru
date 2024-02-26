@@ -1,9 +1,9 @@
 import AppError from "../utils/appError.js";
 import Jwt from "jsonwebtoken";
 import catchAsync from "../utils/catchAsync.js";
-import Superuser from "../models/superuserModel.js";
+import User from "../models/userModel.js";
 
-const rootProtect = catchAsync(async (req, res, next) => {
+const protect = catchAsync(async (req, res, next) => {
   //Getting token and check it's there
   let token;
   if (
@@ -21,8 +21,8 @@ const rootProtect = catchAsync(async (req, res, next) => {
   var decoded = Jwt.verify(token, process.env.JWT_SECRET);
 
   // Check if user still exists.
-  const root = await Superuser.findById(decoded.id);
-  if (!root) {
+  const user = await User.findById(decoded.id);
+  if (!user) {
     return next(
       new AppError("the user belonging to this token does no longer exist", 401)
     );
@@ -31,8 +31,9 @@ const rootProtect = catchAsync(async (req, res, next) => {
   //Grant access protected ROUTE
   req.user = {
     id: decoded.id,
-    rootKey: root.rootKey,
-    role: "root",
+    rootKey: user.rootKey,
+    classCode: user.classCode,
+    role: user.role,
   };
 
   next();
@@ -51,4 +52,4 @@ const restrictTo = (...roles) => {
   };
 };
 
-export { rootProtect, restrictTo };
+export { protect, restrictTo };
