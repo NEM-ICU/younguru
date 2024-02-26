@@ -1,30 +1,32 @@
 import mongoose from "mongoose";
 
 const ClassSchema = new mongoose.Schema({
-  classCode: {
+  className: {
     type: String,
     required: true,
-    unique: true,
   },
   description: {
     type: String,
   },
-  editors: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-  ],
-  students: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-  ],
+  institute: {
+    type: String,
+    required: true,
+  },
+  batch: {
+    type: String,
+    required: true,
+  },
+  classCode: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
+  rootKey: {
+    type: Number,
+    required: true,
+  },
 });
 
 const ClassModel = mongoose.model("Class", ClassSchema);
 
-module.exports = ClassModel;
+export default ClassModel;

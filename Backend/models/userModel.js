@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 
-const Schema = mongoose.Schema;
-
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -12,22 +10,21 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
-  role: {
-    type: String,
-    enum: ["user", "editor"],
-    default: "user",
-  },
   rootKey: {
     type: Number,
-    required: true,
   },
   classCode: {
     type: Number,
-    required: true,
+  },
+  role: {
+    type: String,
+    enum: ["root", "admin", "editor", "student"],
+    default: "student",
   },
   password: {
     type: String,
     required: true,
+    minlength: 8,
     select: false,
   },
   createdAt: {
