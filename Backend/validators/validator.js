@@ -48,6 +48,12 @@ const classSchema = Joi.object({
   description: Joi.string(),
 });
 
+const paperCollectionSchema = Joi.object({
+  session: Joi.string().required(),
+  classCode: Joi.string().required().length(8),
+  limit: Joi.string(),
+});
+
 const validateRootSignup = validator(rootSignupSchema);
 const validateAdminOrEditorSignupSchema = validator(adminOrEditorSignupSchema);
 const validateStudentSignUpSchema = validator(studentSignupSchema);
@@ -55,10 +61,12 @@ const validateLoginSchema = validator(loginSchema);
 const validateUserLoginSchema = validator(userLoginSchema);
 const validateAdminLoginSchema = validator(adminLoginSchema);
 const validateClassSchema = validator(classSchema);
+const validatePaperCollectionSchema = validator(paperCollectionSchema);
 
 export {
   validateRootSignup,
   validateAdminOrEditorSignupSchema,
+  validatePaperCollectionSchema,
   validateStudentSignUpSchema,
   validateLoginSchema,
   validateAdminLoginSchema,

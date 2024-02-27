@@ -5,24 +5,25 @@ const PaperCollectionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  class: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Class",
+  classCode: {
+    type: Number,
+    required: true,
   },
-  papers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Paper",
-    },
-  ],
   limit: {
     type: Number,
     required: true,
     default: 10,
   },
-  createdAt: {
+  startDate: {
     type: Date,
     default: Date.now,
+  },
+  endDate: {
+    type: Date,
+  },
+  isOngoing: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -31,4 +32,4 @@ const PaperCollection = mongoose.model(
   PaperCollectionSchema
 );
 
-module.exports = PaperCollection;
+export default PaperCollection;

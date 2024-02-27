@@ -106,7 +106,7 @@ const createAdminOrEditor = catchAsync(async (req, res, next) => {
   });
 });
 
-// Studnet Signup
+// Student Signup
 const createStudent = catchAsync(async (req, res, next) => {
   const { error, value } = validateStudentSignUpSchema(req.body);
 
