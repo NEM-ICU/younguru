@@ -11,6 +11,7 @@ import errorHandler from "./utils/errorHandler.js";
 import rootRouter from "./routes/rootRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import classRoutes from "./routes/classRoutes.js";
+import paperCollectionRoutes from "./routes/paperCollectionRoutes.js";
 
 // Data sanitization against NoSQL query injection
 
@@ -22,6 +23,7 @@ import classRoutes from "./routes/classRoutes.js";
 app.use("/api/v1/root", rootRouter);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/class", classRoutes);
+app.use("/api/v1/paper_collection", paperCollectionRoutes);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
