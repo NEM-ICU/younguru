@@ -20,6 +20,7 @@ const studentSignupSchema = Joi.object({
   name: Joi.string().required().min(3),
   email: Joi.string().required().email(),
   classCode: Joi.string().required().length(8),
+  indexNo: Joi.string().required().length(8),
   password: Joi.string().required().min(8).max(16),
 });
 
