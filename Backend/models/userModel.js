@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema({
   classCode: {
     type: Number,
   },
+  indexNo: {
+    type: Number,
+  },
   role: {
     type: String,
     enum: ["root", "admin", "editor", "student"],
